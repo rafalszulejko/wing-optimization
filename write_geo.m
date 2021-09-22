@@ -43,6 +43,22 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
         fprintf(file, '%d};\n', curves(length(curves)));
     end
 
+    function extrude(surface, height, layers, vectorName)
+        fprintf(file, '%s[] = Extrude {0, 0, %g} {\n\tSurface{%s};\n\tLayers{%d};\n\tRecombine;\n};\n', vectorName, height, surface, layers);
+    end
+
+    function physicalsurface(name, value)
+        fprintf(file, 'Physical Surface("%s") = %s;\n', name, value);
+    end
+
+    function physicalsurface_range(name, vector, rangeFrom, rangeTo)
+        fprintf(file, 'Physical Surface("%s") = %s[{%d:%d}];\n', name, vector, rangeFrom, rangeTo);
+    end
+
+    function physicalvolume(name, value)
+        fprintf(file, 'Physical Volume("%s") = %s;\n', name, value);
+    end
+
     %% points
 
     writepoint([-width/2, height/2], wall_density);
@@ -96,7 +112,14 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
     
     writesurface([1 2 3]);
     
-    fprintf(file, 'Physical Surface(405) = {1};\n');
+    extrude("1", z_thickness, 1, "surfaceVector");
+    
+    physicalsurface("frontAndBack", "{surfaceVector[0], 1}");
+    physicalvolume("volume", "surfaceVector[1]");
+    physicalsurface("walls", "{surfaceVector[2], surfaceVector[4]}");
+    physicalsurface("outlet", "surfaceVector[3]");
+    physicalsurface("inlet", "surfaceVector[5]");
+    physicalsurface_range("airfoil", "surfaceVector", 6, 5 + e1_length + e2_length)
     
     fclose(file);
 end
