@@ -34,7 +34,7 @@ boundaryField
 
     walls
     {
-        type            noSlip;
+        type            slip;
     }
 
     airfoil

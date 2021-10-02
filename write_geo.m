@@ -8,6 +8,7 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
     linecounter = 1;
     loopcounter = 1;
     surfacecounter = 1;
+    fieldcounter = 1;
     
     file = fopen(filename, 'w');
     
@@ -59,12 +60,30 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
         fprintf(file, 'Physical Volume("%s") = %s;\n', name, value);
     end
 
+    function boundarylayer(edgelist, hfar, hwall_n, thickness, ratio, Quads)
+        fprintf(file, '\nField[%d] = BoundaryLayer;\nField[%d].EdgesList = {', fieldcounter, fieldcounter);
+        
+        for a = 1:length(edgelist) - 1
+            fprintf(file, '%d, ', edgelist(a));
+        end
+        
+        fprintf(file, '%d};\nField[%d].hfar = %g;\nField[%d].hwall_n = %g;\nField[%d].thickness = %g;\nField[%d].ratio = %g;\nField[%d].Quads = %d;\nBoundaryLayer Field = %d;\n\n', ...
+            edgelist(length(edgelist)), ...
+            fieldcounter, hfar, ...
+            fieldcounter, hwall_n, ...
+            fieldcounter, thickness, ...
+            fieldcounter, ratio, ...
+            fieldcounter, Quads, ...
+            fieldcounter);
+    end
+        
+
     %% points
 
-    writepoint([-width/2, height/2], wall_density);
-    writepoint([width/2, height/2], wall_density);
-    writepoint([width/2, -height/2], wall_density);
-    writepoint([-width/2, -height/2], wall_density);
+    writepoint([-10, height/2], wall_density);
+    writepoint([width - 10, height/2], wall_density);
+    writepoint([width - 10, -height/2], wall_density);
+    writepoint([-10, -height/2], wall_density);
 
     e1_length = length(e1.Vertices);
     e2_length = length(e2.Vertices);
@@ -112,6 +131,8 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
     
     writesurface([1 2 3]);
     
+    boundarylayer([5:3+e1_length, 5+e1_length:3+e1_length+e2_length], 0.05, 0.001, 0.02, 1.1, 1);
+    
     extrude("1", z_thickness, 1, "surfaceVector");
     
     physicalsurface("frontAndBack", "{surfaceVector[0], 1}");
@@ -120,7 +141,7 @@ function write_geo(filename, e1, e2, width, height, af_density, wall_density, z_
     physicalsurface("outlet", "surfaceVector[3]");
     physicalsurface("inlet", "surfaceVector[5]");
     physicalsurface_range("airfoil", "surfaceVector", 6, 5 + e1_length + e2_length)
-    
+
     fclose(file);
 end
 

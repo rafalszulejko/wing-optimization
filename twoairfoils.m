@@ -11,9 +11,6 @@ function [element1, element2] = twoairfoils(m1, p1, xx1, a1, m2, p2, xx2, a2, x2
         s2),...
         [x2 y2]);
     
-    pf = figure;
-    p = plot([element1 element2], 'FaceColor', 'black', 'FaceAlpha', 1);
-    xlim([-1 2]);
-    ylim([-0.5 1]);
-    axis equal;
+    element1.Vertices(n/2 + 1,:) = [];
+    element2.Vertices(n/2 + 1,:) = [];
 end
