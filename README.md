@@ -6,10 +6,8 @@ https://medium.com/next-level-german-engineering/how-machine-learning-transforme
 Requirements: MATLAB, OpenFOAM v8, gmsh 4.9.0-git-ccae7b60e lub higher (confirmed not working on 4.8.4).
 
 ## In progress:
-- Case calculation. Currently using double NACA as proof-of-concept placeholder.
-    - OpenFOAM setup
-    - mesh generation
+- OpenFOAM case calculation
+- Autoencoder airfoil generator
 
 ## To do:
-- General airfoil generator
 - Optimization algorithm

@@ -1,4 +1,4 @@
-function [X,Y] = naca4digit(maxcamber, maxcamberpos, thickness, n_points, flipped)
+function element = naca4digit(maxcamber, maxcamberpos, thickness, n_points, flipped)
 %NACA4DIGIT generates xy coordinates of a  NACA 4-digit airfoil
 %   assertions are self-explanatory
 %   maxcamber, maxcamberpos and thickness are  expressed in percents
@@ -54,4 +54,7 @@ function [X,Y] = naca4digit(maxcamber, maxcamberpos, thickness, n_points, flippe
     if flipped
         Y = -Y;
     end
+    
+    element = polyshape(X, Y, 'Simplify', false);
+    element.Vertices(n/2 + 1,:) = [];
 end
