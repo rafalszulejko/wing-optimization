@@ -9,5 +9,5 @@ function result = decodeAirfoil(autoencoder, params, multiplier, xx_nodes)
     points = fnplt(curve);
     points(:,[6 17 31 45 56 63 69 80 94 108 119 123]) = [];
     
-    result = polyshape(points(1,:), -points(2,:));
+    result = polyshape(points(1,:), -points(2,:), 'Simplify',false);
 end
