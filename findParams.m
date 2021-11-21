@@ -1,11 +1,29 @@
-function ga_values = findParams(encoder, domainX, domainY, AFDensity, wallDensity, z_thickness, bl_thickness, solver_cores)
+function ga_values = findParams(encoder, n, paramsFile)
+    addpath('openfoam')
+    addpath('generator')
+    addpath('gmsh')
+    
+    load(paramsFile, 'defaultsetup')
+    defaultsetup.caseSetup();
+    
     ch_xx = chebyshevs(5);
     
     function result = calculate_case_total(arg)
-            result = calculate_case(...
-                decodeAirfoil(encoder, [arg(1); arg(2); arg(3); arg(4); arg(5)], 0.01, ch_xx), arg(6), ...
-                decodeAirfoil(encoder, [arg(7); arg(8); arg(9); arg(10); arg(11)], 0.01, ch_xx), arg(12), arg(13), arg(14), arg(15), ...
-                domainX, domainY, AFDensity, wallDensity, z_thickness, bl_thickness, solver_cores, arg);
+        [e1m, e2m, Ltot] = twoairfoils(decodeAirfoil(encoder, arg(1:n)', 0.01, ch_xx), ...
+            arg(n+1), ...
+            decodeAirfoil(encoder, arg(n+2:2*n+1)', 0.01, ch_xx), ...
+            arg(2*n+2), arg(2*n+3), arg(2*n+4), arg(2*n+5));
+        
+        if validateAirfoils(e1m, e2m, bl_thickness) == false
+            result = 0;
+            return
+        end
+        
+        foamCase = FOAMCase(string.empty, defaultsetup, meshScript(e1m, e2m, domainX, domainY, AFDensity, wallDensity, z_thickness), Ltot);
+        
+        foamCase.solve();
+        
+        result = - foamCase.Cl * foamCase.Cl_Cd;
     end
 
     parpool('local', 8)

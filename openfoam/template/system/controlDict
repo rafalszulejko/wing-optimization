@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         10000;
+endTime         ${ENDTIME};
 
-deltaT          1;
+deltaT          ${DELTAT};
 
 writeControl    timeStep;
 
-writeInterval   1000;
+writeInterval   ${WRITE_INTERVAL};
 
 purgeWrite      0;
 
@@ -52,7 +52,7 @@ functions
         type            forceCoeffs;
         libs            ("libforces.so");
         writeControl    timeStep;
-        writeInterval   10;
+        writeInterval   ${FORCECOEFFS_INTERVAL};
         log             true;
         patches         (airfoil);
         rho             rhoInf;      // Indicates incompressible.
@@ -61,9 +61,9 @@ functions
         dragDir         (1 0 0);
         CofR            (0.25 0 0);  // Quarter-chord.
         pitchAxis       (0 0 1);
-        magUInf         9;           // Matches 0/U.
-        lRef            1.0;         // Normalized chord.
-        Aref            0.1;         // Cell depth * chord.
+        magUInf         ${FORCECOEFFS_MAGUINF};           // Matches 0/U.
+        lRef            ${FORCECOEFFS_LREF};         // Normalized chord.
+        Aref            ${FORCECOEFFS_AREF};         // Cell depth * chord.
     }
 }
 

@@ -15,4 +15,13 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains 
+numberOfSubdomains ${SUBDOMAINS};
+
+method          scotch;
+
+distributed     no;
+
+roots           ( );
+
+
+// ************************************************************************* //

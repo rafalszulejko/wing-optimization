@@ -1,4 +1,4 @@
-function script = meshScript(e1, e2, width, height, af_density, wall_density, z_thickness)
+function g = meshScript(e1, e2, width, height, af_density, wall_density, z_thickness)
     g = Gmsh;
     
     %% points
@@ -60,6 +60,4 @@ function script = meshScript(e1, e2, width, height, af_density, wall_density, z_
     g.physicalsurface("outlet", "surfaceVector[3]");
     g.physicalsurface("inlet", "surfaceVector[5]");
     g.physicalsurface_range("airfoil", "surfaceVector", 6, 5 + e1_length + e2_length)
-    
-    script = g.GeoScript;
 end

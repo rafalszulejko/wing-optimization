@@ -1,10 +1,9 @@
-function autoenc = train_selig(data_folder, chebyshev_nodes, output_length, multiplier, varargin)
+function autoenc = train_selig(data_folder, xx_nodes, output_length, multiplier, varargin)
     addpath(data_folder);
     afiles = dir(data_folder);
     afiles = afiles(3:end);
 
     ch_all = [];
-    ch_xx = chebyshevs(chebyshev_nodes);
 
     for i = 1:length(afiles)
         try
@@ -13,8 +12,8 @@ function autoenc = train_selig(data_folder, chebyshev_nodes, output_length, mult
 
             leadingedge = min(afiledata(:, 1));
             leadingedge_index = find(afiledata(:, 1) == leadingedge);
-            ch_top = fliplr(interp1(fliplr(afiledata(1:leadingedge_index, 1)), fliplr(afiledata(1:leadingedge_index, 2)), ch_xx));
-            ch_bottom = interp1(afiledata(leadingedge_index:end, 1), afiledata(leadingedge_index:end, 2), ch_xx);
+            ch_top = fliplr(interp1(fliplr(afiledata(1:leadingedge_index, 1)), fliplr(afiledata(1:leadingedge_index, 2)), xx_nodes));
+            ch_bottom = interp1(afiledata(leadingedge_index:end, 1), afiledata(leadingedge_index:end, 2), xx_nodes);
         catch e
             disp(afiles(i).name + "\t" + getReport(e, 'basic'));
             continue
