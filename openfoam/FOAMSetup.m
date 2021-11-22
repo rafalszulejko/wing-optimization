@@ -4,10 +4,6 @@ classdef FOAMSetup<handle
     properties
         ZThickness;
         
-        EndTime;
-        DeltaT;
-        WriteInterval;
-        
         ToleranceP;
         ToleranceU;
         ToleranceNuTilda;
@@ -19,13 +15,12 @@ classdef FOAMSetup<handle
         
         UInternalField = [0 0 0];
         
-        Parallel = false;
         Subdomains = 0;
         
         FileOutput = false;
         
-        BashExecutable; %wsl bash -i        
-        GmshExecutablePath; %~/gmsh-git-Linux64/bin/gmsh
+        BashExecutable;        
+        GmshExecutablePath;
 
         SetupScript = "set -e\n";
     end
@@ -54,14 +49,10 @@ classdef FOAMSetup<handle
             
         end
         
-        function obj = caseSetup(obj)
+        function obj = prepare(obj)
             obj.SetupScript = "";
             obj.appendSetupScript("cp -r openfoam/template/* case/");
-            
-            obj.exportVariable("ENDTIME", obj.EndTime);
-            obj.exportVariable("DELTAT", obj.DeltaT);
-            obj.exportVariable("WRITEINTERVAL", obj.WriteInterval);
-            
+
             obj.exportVariable("TOLERANCE_P", obj.ToleranceP);
             obj.exportVariable("TOLERANCE_U", obj.ToleranceU);
             obj.exportVariable("TOLERANCE_NUTILDA", obj.ToleranceNuTilda);

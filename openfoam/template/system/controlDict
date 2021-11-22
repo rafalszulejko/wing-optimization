@@ -23,13 +23,13 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         ${ENDTIME};
+endTime         10000;
 
-deltaT          ${DELTAT};
+deltaT          1;
 
 writeControl    timeStep;
 
-writeInterval   ${WRITE_INTERVAL};
+writeInterval   1000;
 
 purgeWrite      0;
 

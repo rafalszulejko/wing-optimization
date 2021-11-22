@@ -1,4 +1,4 @@
-function [element1, element2] = twoairfoils(e1, a1, e2, a2, x2, y2, s2)
+function [element1, element2, Ltot] = twoairfoils(e1, a1, e2, a2, x2, y2, s2)
     element1 = rotate(e1, a1, [0 0]);
     [xbb, ybb] = boundingbox(element1);
     element2 = translate(...
@@ -6,4 +6,6 @@ function [element1, element2] = twoairfoils(e1, a1, e2, a2, x2, y2, s2)
             rotate(e2, a2, [0 0]),...
         s2),...
         [xbb(2) - x2, ybb(2) + y2]);
+    
+    Ltot = sqrt(xbb(2)^2 + ybb(2)^2);
 end
