@@ -57,7 +57,9 @@ classdef FOAMSetup<handle
             obj.exportVariable("TOLERANCE_U", obj.ToleranceU);
             obj.exportVariable("TOLERANCE_NUTILDA", obj.ToleranceNuTilda);
             
-            obj.exportVariable("INTERNALFIELD", mat2str(obj.UInternalField));
+            uinternalstr = mat2str(obj.UInternalField);
+            
+            obj.exportVariable("INTERNALFIELD", uinternalstr(2:end-1));
             
             obj.envSubst("0/U");
             

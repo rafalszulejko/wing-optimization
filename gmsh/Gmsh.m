@@ -30,6 +30,11 @@ classdef Gmsh<handle
             obj.GeoScript = obj.GeoScript + sprintf('Line(%d) = {%d, %d};\n', obj.LineCounter, p1, p2);
             obj.LineCounter = obj.LineCounter + 1;
         end
+        
+        function obj = circle(obj, p1, p2, p3)
+            obj.GeoScript = obj.GeoScript + sprintf('Circle(%d) = {%d, %d, %d};\n', obj.LineCounter, p1, p2, p3);
+            obj.LineCounter = obj.LineCounter + 1;
+        end
 
         function obj = loop(obj, points)
             obj.GeoScript = obj.GeoScript + sprintf('Line loop(%d) = {', obj.LoopCounter);
@@ -38,7 +43,7 @@ classdef Gmsh<handle
                 obj.GeoScript = obj.GeoScript + sprintf('%d, ', points(a));
             end
 
-            obj.GeoScript = obj.GeoScript + sprintf('%d};\n', points(length(points)));
+            obj.GeoScript = obj.GeoScript + sprintf('%d};\n', points(end));
             
             obj.LoopCounter = obj.LoopCounter + 1;
         end
@@ -50,7 +55,7 @@ classdef Gmsh<handle
                 obj.GeoScript = obj.GeoScript + sprintf('%d, ', curves(a));
             end
 
-            obj.GeoScript = obj.GeoScript + sprintf('%d};\n', curves(length(curves)));
+            obj.GeoScript = obj.GeoScript + sprintf('%d};\n', curves(end));
             obj.SurfaceCounter = obj.SurfaceCounter + 1;
         end
 
@@ -70,15 +75,15 @@ classdef Gmsh<handle
             obj.GeoScript = obj.GeoScript + sprintf('Physical Volume("%s") = %s;\n', name, value);
         end
 
-        function obj = boundarylayer(obj, edgelist, hfar, hwall_n, thickness, ratio, Quads)
+        function obj = boundarylayer(obj, edgelist, hfar, hwall_n, thickness, ratio, Quads, fanPoints, fanEdges)
             obj.GeoScript = obj.GeoScript + sprintf('\nField[%d] = BoundaryLayer;\nField[%d].EdgesList = {', obj.FieldCounter, obj.FieldCounter);
 
             for a = 1:length(edgelist) - 1
                 obj.GeoScript = obj.GeoScript + sprintf('%d, ', edgelist(a));
             end
 
-            obj.GeoScript = obj.GeoScript + sprintf('%d};\nField[%d].hfar = %g;\nField[%d].hwall_n = %g;\nField[%d].thickness = %g;\nField[%d].ratio = %g;\nField[%d].Quads = %d;\nBoundaryLayer Field = %d;\n\n', ...
-                edgelist(length(edgelist)), ...
+            obj.GeoScript = obj.GeoScript + sprintf('%d};\nField[%d].hfar = %g;\nField[%d].hwall_n = %g;\nField[%d].thickness = %g;\nField[%d].ratio = %g;\nField[%d].Quads = %d;\nField[%d].FanPointsList = {', ...
+                edgelist(end), ...
                 obj.FieldCounter, hfar, ...
                 obj.FieldCounter, hwall_n, ...
                 obj.FieldCounter, thickness, ...
@@ -86,6 +91,14 @@ classdef Gmsh<handle
                 obj.FieldCounter, Quads, ...
                 obj.FieldCounter);
 
+            for a = 1:length(fanPoints) - 1
+                obj.GeoScript = obj.GeoScript + sprintf('%d, ', fanPoints(a));
+            end
+            
+            obj.GeoScript = obj.GeoScript + sprintf('%d};\nBoundaryLayer Field = %d;\n\n', fanPoints(end), obj.FieldCounter);
+            
+            obj.GeoScript = obj.GeoScript + sprintf('Mesh.BoundaryLayerFanElements = %g;\n\n', fanEdges);
+            
             obj.FieldCounter = obj.FieldCounter + 1;
         end
 
@@ -121,6 +134,38 @@ classdef Gmsh<handle
         
         function obj = comment(obj, commentValue)
             obj.GeoScript = obj.GeoScript + commentValue;
+        end
+        
+        function obj = distanceField(obj, pointsList)
+            obj.GeoScript = obj.GeoScript + sprintf('\nField[%d] = Distance;\nField[%d].PointsList = {', obj.FieldCounter, obj.FieldCounter);
+            
+            for a = 1:length(pointsList) - 1
+                obj.GeoScript = obj.GeoScript + sprintf('%d, ', pointsList(a));
+            end
+
+            obj.GeoScript = obj.GeoScript + sprintf('%d};\n', pointsList(end));
+
+            obj.FieldCounter = obj.FieldCounter + 1;
+        end
+        
+        function obj = mathEvalField(obj, fun)
+            obj.GeoScript = obj.GeoScript + sprintf('\nField[%d] = MathEval;\nField[%d].F = Sprintf("%s");\n', obj.FieldCounter, obj.FieldCounter, fun);
+            
+            obj.FieldCounter = obj.FieldCounter + 1;
+        end
+        
+        function obj = transfiniteCurve(obj, edgeList, val, nonlintype, nonlinval)
+            obj.GeoScript = obj.GeoScript + sprintf('Transfinite Curve {');
+            
+            for a = 1:length(edgeList) - 1
+                obj.GeoScript = obj.GeoScript + sprintf('%d, ', edgeList(a));
+            end
+            
+            obj.GeoScript = obj.GeoScript + sprintf('%d} = %d', edgeList(end), val);
+
+            obj.GeoScript = obj.GeoScript + sprintf(' Using %s %d', nonlintype, nonlinval);
+            
+            obj.GeoScript = obj.GeoScript + sprintf(';\n');
         end
     end
 end
