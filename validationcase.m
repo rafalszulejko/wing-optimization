@@ -19,37 +19,14 @@ plot([mainAf, flap])
 
 Re = 730000;
 l = 12*0.0254;
-nu = 1.4207e-5;
-u = Re*nu/l;
-
-%% FOAM setup
-
-foamsetup = FOAMSetup();
-
-foamsetup.ToleranceP = "1e-6";
-foamsetup.ToleranceU = "1e-6";
-foamsetup.ToleranceNuTilda = "1e-6";
-
-foamsetup.ForceCoeffsWriteInterval = 10;
-foamsetup.ForceCoeffsMagUInf = u;
-
-foamsetup.UInternalField = [u 0 0];
-
-foamsetup.Subdomains = 2;
-
-foamsetup.FileOutput = false;
-
-foamsetup.BashExecutable = "wsl bash -i ";
-foamsetup.GmshExecutablePath = "~/gmsh-git-Linux64/bin/gmsh ";
-
-foamsetup.ZThickness = 0.1;
-
-%foamsetup.prepare();
 
 %% solution
 
 [xbb, ybb] = boundingbox([mainAf, flap]);
 
-Ltot = sqrt(max(xbb.^2) + max(ybb.^2))*l;
+Ltot = sqrt(max(xbb.^2) + max(ybb.^2));
 
-foamCase = FOAMCase("validation", foamsetup, meshScript(mainAf, flap, 30, 2, 4, 3, 0.005, 0.0002, 0.005, 1.2, 1, 0.1), Ltot);
+nu = 1.4207e-5;
+u = Re*nu/Ltot;
+
+foamCase = FOAMCase(u, meshScript(mainAf, flap, 30, 2, 4, 3, 0.005, 0.0002, 0.005, 1.2, 1, 0.1), Ltot, CaseName='validation');
