@@ -52,9 +52,9 @@ SIMPLE
 
     residualControl
     {
-        p               1e-5;
-        U               1e-5;
-        nuTilda         1e-5;
+        p               ${RESIDUAL_P};
+        U               ${RESIDUAL_U};
+        nuTilda         ${RESIDUAL_NUTILDA};
     }
 }
 

@@ -1,5 +1,7 @@
+*.png
 *.asv
 runcase.sh
-case/
-airfoils/
-validation/
+*/
+!gmsh/
+!openfoam/
+!generator/ 

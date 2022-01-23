@@ -9,6 +9,10 @@ classdef FOAMCase<handle
         ToleranceP;
         ToleranceU;
         ToleranceNuTilda;
+
+        ResidualP;
+        ResidualU;
+        ResidualNuTilda;
         
         ForceCoeffsWriteInterval;
         ForceCoeffsMagUInf;
@@ -47,6 +51,9 @@ classdef FOAMCase<handle
                 options.ToleranceP = '1e-6'
                 options.ToleranceU = '1e-6'
                 options.ToleranceNuTilda = '1e-6'
+                options.ResidualP = '1e-5'
+                options.ResidualU = '1e-5'
+                options.ResidualNuTilda = '1e-5'
                 options.ForceCoeffsWriteInterval = 10
                 options.Subdomains = 2
                 options.BashExecutable = "bash -i"
@@ -66,6 +73,10 @@ classdef FOAMCase<handle
             obj.ToleranceP = options.ToleranceP;
             obj.ToleranceU = options.ToleranceU;
             obj.ToleranceNuTilda = options.ToleranceNuTilda;
+
+            obj.ResidualP = options.ResidualP;
+            obj.ResidualU = options.ResidualU;
+            obj.ResidualNuTilda = options.ResidualNuTilda;
             
             obj.ForceCoeffsWriteInterval = options.ForceCoeffsWriteInterval;
             obj.ForceCoeffsMagUInf = U;
@@ -84,8 +95,9 @@ classdef FOAMCase<handle
 
             obj.copyAndFillTemplate();
             obj.writeParams(options.GAParams);
-            obj.writeGmshScript();
-            
+            if ~isempty(obj.GmshGeo)
+                obj.writeGmshScript();
+            end
         end
 
         function obj = copyAndFillTemplate(obj)
@@ -104,8 +116,8 @@ classdef FOAMCase<handle
             obj.replaceInFile(obj.CaseName + "/0/U", '${INTERNALFIELD}', convertCharsToStrings(uinternalstr(2:end-1)));
 
             obj.replaceInFile(obj.CaseName + "/system/fvSolution", ...
-                {'${TOLERANCE_P}', '${TOLERANCE_U}', '${TOLERANCE_NUTILDA}'}, ...
-                {obj.ToleranceP, obj.ToleranceU, obj.ToleranceNuTilda});
+                {'${TOLERANCE_P}', '${TOLERANCE_U}', '${TOLERANCE_NUTILDA}', '${RESIDUAL_P}', '${RESIDUAL_U}', '${RESIDUAL_NUTILDA}'}, ...
+                {obj.ToleranceP, obj.ToleranceU, obj.ToleranceNuTilda, obj.ResidualP, obj.ResidualU, obj.ResidualNuTilda});
 
             obj.replaceInFile(obj.CaseName + "/system/decomposeParDict", '${SUBDOMAINS}', num2str(obj.Subdomains));
 
@@ -139,29 +151,30 @@ classdef FOAMCase<handle
         function obj = writeResults(obj)
             coefs = readtable(obj.CaseName + "/postProcessing/forceCoeffs1/0/forceCoeffs.dat");
 
-            obj.Cl = table2array(coefs(end, 4));
-            obj.Cd = table2array(coefs(end, 3));
+            obj.Cl = mean(table2array(coefs(end-5:end, 4)));
+            obj.Cd = mean(table2array(coefs(end-5:end, 3)));
             obj.Cl_Cd = obj.Cl/obj.Cd;
             
             resultFile = fopen(obj.ResultFileName, 'w');
-            fprintf(resultFile, 'CL\t%g\nCD\t%g\nL/D\t%g\ntime\t%g', obj.Cl, obj.Cd, obj.Cl_Cd, totaltime);
+            fprintf(resultFile, 'CL\t%g\nCD\t%g\nL/D\t%g\ntime\t%g', obj.Cl, obj.Cd, obj.Cl_Cd, obj.TotalTime);
             fclose(resultFile);
         end
 
         function obj = solve(obj)
             if obj.FileOutput && obj.ConsoleOutput
-                log = " | tee " + obj.CaseName + "/log.log";
+                log = " | tee " + obj.CaseName + "/log.log 2>&1";
             elseif obj.FileOutput
-                log = " > " + obj.CaseName + "/log.log";
+                log = " > " + obj.CaseName + "/log.log 2>&1";
             elseif obj.ConsoleOutput
                 log = "";
             else
-                log = " > /dev/null";
+                log = " > /dev/null 2>&1";
             end
 
+            disp("Solving case " + obj.CaseName);
             tic
 
-            if system(obj.BashExecutable + " runcase.sh " + obj.CaseName  + " " + obj.Subdomains + log) ~= 0
+            if system(obj.BashExecutable + " runcase.sh " + obj.CaseName + " " + obj.Subdomains + log) ~= 0
                 disp("Case " + obj.CaseName + " finished with error.");
                 obj.HasErrors = true;
                 toc

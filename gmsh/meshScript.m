@@ -1,4 +1,4 @@
-function g = meshScript(main, flap, R, exponent, refineMain, refineFlap, hfar, hwall_n, thickness, ratio, Quads, zDepth)
+function g = meshScript(main, flap, R, exponent, hfar, hwall_n, thickness, ratio, Quads, zDepth)
     %% C-shaped unstructured mesh script with two airfoils and cell size specified by a function based on distance from airfoils. Need to disable point mesh sizing in gmsh to proceed. 
 
     g = Gmsh;
@@ -67,7 +67,7 @@ function g = meshScript(main, flap, R, exponent, refineMain, refineFlap, hfar, h
     g.distanceField(mainFirstPointIndex:mainFirstPointIndex + main_length + flap_length - 1);
     
     mathEvalFieldId = g.FieldCounter;
-    g.mathEvalField(sprintf('%g*F%g^%g + %g', thickness, distanceFieldId, exponent, thickness));
+    g.mathEvalField(sprintf('min(%g*(F%g+1-%g)^%g, 1)', hfar, distanceFieldId, thickness, exponent));
     
     minFieldId = g.FieldCounter;
     g.min([boundaryLayerFieldId mathEvalFieldId]);

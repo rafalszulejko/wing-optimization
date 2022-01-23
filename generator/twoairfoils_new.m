@@ -6,7 +6,7 @@ function [element1, element2, Ltot] = twoairfoils_new(e1, e2, gap, overlap, e2sc
     trailingEdgeTop = element1.Vertices(verticesLength, :) - element1.Vertices(verticesLength - 1, :);
     trailingEdgeTopAngle = rad2deg(atan(trailingEdgeTop(2)/trailingEdgeTop(1)));
     
-    [xi, yi] = polyxpoly(overlap*e2scale*ones(1,2), [-1 1], element2.Vertices(:,1), element2.Vertices(:,2));
+    [xi, yi] = polyxpoly(overlap*ones(1,2), [-1 1], element2.Vertices(:,1), element2.Vertices(:,2));
     
     [bottomIntersectionPointY, bottomIntersectionPointIndex] = min(yi);
     
@@ -22,7 +22,9 @@ function [element1, element2, Ltot] = twoairfoils_new(e1, e2, gap, overlap, e2sc
     
     [xbb, ybb] = boundingbox(element1);
     
-    element2 = translate(element2, xbb(2) - bottomIntersectionPointX, ybb(2) - bottomIntersectionPointY + gap);
+    element2 = translate(element2, xbb(2) - bottomIntersectionPointX, -bottomIntersectionPointY);
+
+    element2 = translate(element2, 0, gap);
     
     element2 = rotate(element2, trailingEdgeTopAngle, [xbb(2) ybb(2)]);
     
