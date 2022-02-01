@@ -80,5 +80,5 @@ function g = meshScript(main, flap, R, exponent, hfar, hwall_n, thickness, ratio
     g.physicalsurface("walls", "{surfaceVector[3], surfaceVector[5]}");
     g.physicalsurface("outlet", "surfaceVector[2]");
     g.physicalsurface("inlet", "surfaceVector[4]");
-    g.physicalsurface_range("airfoil", "surfaceVector", mainFirstEdgeLineIndex + 1, mainFirstEdgeLineIndex + main_length + flap_length)
+    g.physicalsurface_range("airfoil", "surfaceVector", mainFirstEdgeLineIndex + 1, mainFirstEdgeLineIndex + main_length + flap_length);
 end

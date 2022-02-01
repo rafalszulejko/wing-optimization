@@ -1,4 +1,4 @@
-function [element1, element2, Ltot] = twoairfoils_new(e1, e2, gap, overlap, e2scale)
+function [element1, element2, Ltot] = twoairfoils_new(e1, e2, gap, overlap, e2scale, scaleAll)
     element1 = e1;
     element2 = scale(e2, e2scale);
     
@@ -29,6 +29,8 @@ function [element1, element2, Ltot] = twoairfoils_new(e1, e2, gap, overlap, e2sc
     element2 = rotate(element2, trailingEdgeTopAngle, [xbb(2) ybb(2)]);
     
     [xbb, ybb] = boundingbox([element1 element2]);
-    Ltot = sqrt(xbb(2)^2 + ybb(2)^2);
+    Ltot = sqrt(xbb(2)^2 + ybb(2)^2)*scaleAll;
+    element1 = scale(element1, scaleAll);
+    element2 = scale(element2, scaleAll);
 end
 

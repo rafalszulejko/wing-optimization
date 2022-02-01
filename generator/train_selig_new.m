@@ -1,0 +1,29 @@
+function autoenc = train_selig_new(data_folder, xx_nodes, output_length, multiplier, varargin)
+    addpath(data_folder);
+    afiles = dir(data_folder);
+    afiles = afiles(3:end);
+
+    ch_all = [];
+
+    for i = 1:length(afiles)
+        try
+            afile = importdata(afiles(i).name, ' ', 1);
+            afiledata = afile.data;
+
+            leadingedge = min(afiledata(:, 1));
+            leadingedge_index = find(afiledata(:, 1) == leadingedge);
+            ch_top = fliplr(interp1(fliplr(afiledata(1:leadingedge_index, 1)), fliplr(afiledata(1:leadingedge_index, 2)), xx_nodes));
+            ch_bottom = interp1(afiledata(leadingedge_index:end, 1), afiledata(leadingedge_index:end, 2), xx_nodes);
+            camberline = (ch_top + ch_bottom)./2;
+            thickness = (ch_top - ch_bottom)./2;
+        catch e
+            disp(afiles(i).name + "\t" + getReport(e, 'basic'));
+            continue
+        end
+
+        ch_all = [ch_all ; [camberline thickness]];
+    end
+
+    ch_transposed = multiplier*ch_all';
+    autoenc = trainAutoencoder(ch_transposed, output_length, varargin{:});
+end
